@@ -125,15 +125,47 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website <a href="http://groupware.les.inf.puc-rio.br/har">here</a> (see the section on the Weight Lifting Exercise Dataset).</p>
+<p>Using devices such as <em>Jawbone Up</em>, <em>Nike FuelBand</em>, and <em>Fitbit</em> it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants, and predict the manner in which they did the exercise. This is the <code>classe</code> variable in the training set. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website <a href="http://groupware.les.inf.puc-rio.br/har">here</a> (see the section on the Weight Lifting Exercise Dataset).</p>
 <ul>
 <li><p>The training data for this project are available <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv">here</a></p></li>
 <li><p>The test data are available <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">here</a></p></li>
-<li><p>The data for this project comes from this <a href="http://groupware.les.inf.puc-rio.br/har">source</a></p></li>
+<li><p>The data for this project come from this <a href="http://groupware.les.inf.puc-rio.br/har">source</a></p></li>
 </ul>
 </div>
 <div id="processing-the-data" class="section level2">
 <h2>Processing the Data</h2>
+<div id="loading-the-data" class="section level4">
+<h4>Loading the Data</h4>
+<pre class="r"><code>trainURL &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;
+download.file(trainURL, destfile = &quot;./pml-training.csv&quot;)
+testURL &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;
+download.file(testURL, destfile = &quot;./pml-testing.csv&quot;)
+traindata &lt;- read.csv(&quot;./pml-training.csv&quot;, na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))
+testdata &lt;- read.csv(&quot;./pml-testing.csv&quot;, na.strings=c(&quot;NA&quot;,&quot;#DIV/0!&quot;,&quot;&quot;))</code></pre>
+</div>
+<div id="cleaning-the-data" class="section level4">
+<h4>Cleaning the Data</h4>
+<p>Creating a data partition for cross validation.</p>
+<pre class="r"><code>library(caret)
+intrain &lt;- createDataPartition(traindata$classe, p = 0.7, list = FALSE)
+train &lt;- traindata[intrain, ]
+test &lt;- traindata[-intrain, ]
+dim(train); dim(test)</code></pre>
+<pre><code>## [1] 13737   160</code></pre>
+<pre><code>## [1] 5885  160</code></pre>
+<p>Removing <code>NearZeroVariance</code> variables.</p>
+<pre class="r"><code>set.seed(20170204)</code></pre>
+</div>
+</div>
+<div id="predicting-with-decision-trees" class="section level2">
+<h2>Predicting with Decision Trees</h2>
+<pre class="r"><code>set.seed(20170204)</code></pre>
+</div>
+<div id="predicting-with-random-forests" class="section level2">
+<h2>Predicting with Random Forests</h2>
+</div>
+<div id="predicting-on-the-test-data" class="section level2">
+<h2>Predicting on the Test Data</h2>
 </div>
 
 
