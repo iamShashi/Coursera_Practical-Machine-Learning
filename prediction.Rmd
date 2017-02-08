@@ -36,36 +36,86 @@ testdata <- read.csv("./pml-testing.csv", na.strings=c("NA","#DIV/0!",""))
 
 #### Cleaning the Data
 
+Removing the predictors not used as part of this analysis (1 ~ 7).
+
+```{r}
+traindata2 <- traindata[, -c(1:7)]
+testdata2 <- testdata[, -c(1:7)]
+```
+
 Creating a data partition for cross validation.
 
 ```{r warning=FALSE, message=FALSE}
 library(caret)
-intrain <- createDataPartition(traindata$classe, p = 0.7, list = FALSE)
-train <- traindata[intrain, ]
-test <- traindata[-intrain, ]
+intrain <- createDataPartition(traindata2$classe, p = 0.7, list = FALSE)
+train <- traindata2[intrain, ]
+test <- traindata2[-intrain, ]
 dim(train); dim(test)
 ```
 
 Removing `NearZeroVariance` variables.
 
 ```{r}
+nzv <- nearZeroVar(train, saveMetrics = TRUE)
+train <- train[, nzv$nzv == FALSE]
 
+nzv <- nearZeroVar(test, saveMetrics = TRUE)
+test <- test[, nzv$nzv == FALSE]
+```
+
+Removing variables with more than 60% `NA`.
+
+```{r}
+train2 <- train
+for(i in 1:length(train)) {
+    if(sum(is.na(train[, i]))/nrow(train) >= 0.6) {
+        for(j in 1:length(train2)) {
+            if(length(grep(names(train[i]), names(train2)[j])) == 1) {
+                train2 <- train2[ , -j]
+            }   
+        } 
+    }
+}
+train <- train2
 ```
 
 ## Predicting with Decision Trees
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 set.seed(20170204)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+tree <- rpart(classe ~ ., data = train, method = "class")
+fancyRpartPlot(tree)
 ```
 
+Decision Tree Prediction.
+
+```{r}
+treep <- predict(tree, test, type = "class")
+confusionMatrix(treep, test$classe)
+```
 
 ## Predicting with Random Forests
 
-```{r}
+```{r warning=FALSE, message=FALSE}
+library(randomForest)
+forest <- randomForest(classe ~. , data = train)
 ```
 
+Random Forests Prediction.
+
+```{r}
+forest1 <- predict(forest, test, type = "class")
+confusionMatrix(forest1, test$classe)
+```
 
 ## Predicting on the Test Data
 
+The Random Forests model resulted in an accuracy of `99.49%` vs. `70.50%` for the Decision Tree model. The expected out-of-sample error is `0.51%`.
+
 ```{r}
+p1 <- predict(forest, testdata, type = "class")
+head(p1, 20)
 ```
